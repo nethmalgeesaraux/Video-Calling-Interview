@@ -48,6 +48,15 @@ export default function Home() {
             </div>
 
             <div className="flex items-center gap-3">
+              <Show when="signed-in">
+                <Link
+                  href="/dashboard"
+                  className="hidden rounded-lg border border-white/20 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10 md:inline-flex"
+                >
+                  Dashboard
+                </Link>
+              </Show>
+
               <Show when="signed-out">
                 <SignInButton>
                   <button className="rounded-lg bg-cyan-400 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-300">
@@ -59,6 +68,42 @@ export default function Home() {
               <Show when="signed-in">
                 <UserButton />
               </Show>
+
+              <details className="relative md:hidden">
+                <summary className="list-none rounded-lg border border-white/20 px-3 py-2 text-sm text-white">
+                  Menu
+                </summary>
+                <div className="absolute right-0 top-12 z-20 w-52 rounded-xl border border-white/10 bg-slate-950/95 p-3 shadow-xl">
+                  <div className="flex flex-col gap-2 text-sm text-slate-200">
+                    <a
+                      href="#features"
+                      className="rounded-md px-2 py-1.5 transition hover:bg-white/10"
+                    >
+                      Features
+                    </a>
+                    <a
+                      href="#how-it-works"
+                      className="rounded-md px-2 py-1.5 transition hover:bg-white/10"
+                    >
+                      How It Works
+                    </a>
+                    <a
+                      href="#start"
+                      className="rounded-md px-2 py-1.5 transition hover:bg-white/10"
+                    >
+                      Get Started
+                    </a>
+                    <Show when="signed-in">
+                      <Link
+                        href="/dashboard"
+                        className="rounded-md px-2 py-1.5 transition hover:bg-white/10"
+                      >
+                        Dashboard
+                      </Link>
+                    </Show>
+                  </div>
+                </div>
+              </details>
             </div>
           </nav>
         </header>
@@ -87,7 +132,7 @@ export default function Home() {
 
               <Show when="signed-in">
                 <Link
-                  href="/"
+                  href="/dashboard"
                   className="rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
                 >
                   Go to Dashboard
@@ -171,6 +216,32 @@ export default function Home() {
             </ol>
           </div>
         </section>
+
+        <footer className="mt-10 rounded-2xl border border-white/10 bg-white/5 px-6 py-6 text-sm text-slate-300 md:px-8">
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-base font-semibold text-white">
+                Interview<span className="text-cyan-300">Live</span>
+              </p>
+              <p className="mt-1">
+                Built for fast, structured, and reliable remote interviews.
+              </p>
+            </div>
+            <div className="flex items-center gap-4">
+              <a href="#features" className="transition hover:text-white">
+                Features
+              </a>
+              <a href="#how-it-works" className="transition hover:text-white">
+                How It Works
+              </a>
+              <Show when="signed-in">
+                <Link href="/dashboard" className="transition hover:text-white">
+                  Dashboard
+                </Link>
+              </Show>
+            </div>
+          </div>
+        </footer>
       </div>
     </main>
   );
