@@ -1,36 +1,16 @@
 import Link from "next/link";
 import { Show, SignInButton, UserButton } from "@clerk/nextjs";
-import { SessionActions } from "./session-actions";
 
-type SessionPageProps = {
+type SessionRoomPageProps = {
   params: Promise<{ sessionId: string }>;
 };
 
-const sessionLookup: Record<string, { title: string; time: string; status: string }> = {
-  "frontend-round-1": {
-    title: "Frontend Engineer - Round 1",
-    time: "Today, 4:00 PM",
-    status: "Upcoming",
-  },
-  "backend-final-round": {
-    title: "Backend Engineer - Final Round",
-    time: "Tomorrow, 10:30 AM",
-    status: "Scheduled",
-  },
-  "product-round-2": {
-    title: "Product Engineer - Round 2",
-    time: "Monday, 2:00 PM",
-    status: "Pending Review",
-  },
-};
-
-export default async function SessionPage({ params }: SessionPageProps) {
+export default async function SessionRoomPage({ params }: SessionRoomPageProps) {
   const { sessionId } = await params;
-  const session = sessionLookup[sessionId];
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#0f172a_0%,_#020617_45%,_#000_100%)] text-slate-100">
-      <div className="mx-auto max-w-4xl px-6 pb-16 pt-6 md:px-10 md:pb-24">
+      <div className="mx-auto max-w-5xl px-6 pb-16 pt-6 md:px-10 md:pb-24">
         <header className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur">
           <nav className="flex items-center justify-between px-5 py-4 md:px-7">
             <Link href="/" className="text-lg font-semibold tracking-tight md:text-xl">
@@ -38,10 +18,10 @@ export default async function SessionPage({ params }: SessionPageProps) {
             </Link>
             <div className="flex items-center gap-3">
               <Link
-                href="/dashboard"
+                href={`/session/${sessionId}`}
                 className="rounded-lg border border-white/20 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
               >
-                Dashboard
+                Session Details
               </Link>
               <UserButton />
             </div>
@@ -50,21 +30,19 @@ export default async function SessionPage({ params }: SessionPageProps) {
 
         <Show when="signed-in">
           <section className="pt-12">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6 md:p-8">
-              <span className="rounded-full bg-cyan-300/20 px-3 py-1 text-xs text-cyan-200">
-                {session?.status ?? "Session"}
-              </span>
-              <h1 className="mt-4 text-3xl font-semibold text-white md:text-4xl">
-                {session?.title ?? "Interview Session"}
-              </h1>
-              <p className="mt-3 text-slate-300">{session?.time ?? "Time not set"}</p>
+            <h1 className="text-3xl font-semibold text-white md:text-4xl">Interview Room</h1>
+            <p className="mt-3 text-slate-300">
+              Session ID: <span className="font-medium text-white">{sessionId}</span>
+            </p>
 
-              <div className="mt-8 rounded-xl border border-white/10 bg-slate-900/60 p-5">
-                <p className="text-sm text-slate-300">
-                  Session room is ready. Integrate your video call provider here and launch the live
-                  interview meeting.
-                </p>
-                <SessionActions sessionId={sessionId} />
+            <div className="mt-8 rounded-2xl border border-white/10 bg-slate-900/60 p-6 md:p-8">
+              <div className="aspect-video rounded-xl border border-white/10 bg-slate-950/80 p-4">
+                <div className="grid h-full place-items-center rounded-lg border border-dashed border-white/20 text-center">
+                  <p className="max-w-md text-sm text-slate-300">
+                    Video room placeholder. Connect your provider SDK here (Stream, Daily, Agora)
+                    to render live call UI.
+                  </p>
+                </div>
               </div>
             </div>
           </section>
@@ -74,10 +52,10 @@ export default async function SessionPage({ params }: SessionPageProps) {
           <section className="pt-16">
             <div className="max-w-xl rounded-2xl border border-white/10 bg-white/5 p-6 md:p-8">
               <h1 className="text-2xl font-semibold text-white md:text-3xl">
-                Sign in to open this session
+                Sign in to join interview room
               </h1>
               <p className="mt-3 text-slate-300">
-                Please authenticate before accessing interview session rooms.
+                Please sign in before joining this session room.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <SignInButton>
@@ -86,10 +64,10 @@ export default async function SessionPage({ params }: SessionPageProps) {
                   </button>
                 </SignInButton>
                 <Link
-                  href="/dashboard"
+                  href={`/session/${sessionId}`}
                   className="rounded-xl border border-white/20 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
-                  Back to Dashboard
+                  Back to Session
                 </Link>
               </div>
             </div>
