@@ -1,28 +1,10 @@
 import Link from "next/link";
 import { Show, SignInButton, UserButton } from "@clerk/nextjs";
+import { getAllSessions } from "@/lib/session-repository";
 
-const interviewCards = [
-  {
-    id: "frontend-round-1",
-    title: "Frontend Engineer - Round 1",
-    time: "Today, 4:00 PM",
-    status: "Upcoming",
-  },
-  {
-    id: "backend-final-round",
-    title: "Backend Engineer - Final Round",
-    time: "Tomorrow, 10:30 AM",
-    status: "Scheduled",
-  },
-  {
-    id: "product-round-2",
-    title: "Product Engineer - Round 2",
-    time: "Monday, 2:00 PM",
-    status: "Pending Review",
-  },
-];
+export default async function DashboardPage() {
+  const interviewCards = await getAllSessions();
 
-export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#0f172a_0%,_#020617_45%,_#000_100%)] text-slate-100">
       <div className="mx-auto max-w-6xl px-6 pb-16 pt-6 md:px-10 md:pb-24">

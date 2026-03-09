@@ -1,32 +1,20 @@
 import Link from "next/link";
 import { Show, SignInButton, UserButton } from "@clerk/nextjs";
+import { notFound } from "next/navigation";
+import { getSessionById } from "@/lib/session-repository";
 import { SessionActions } from "./session-actions";
 
 type SessionPageProps = {
   params: Promise<{ sessionId: string }>;
 };
 
-const sessionLookup: Record<string, { title: string; time: string; status: string }> = {
-  "frontend-round-1": {
-    title: "Frontend Engineer - Round 1",
-    time: "Today, 4:00 PM",
-    status: "Upcoming",
-  },
-  "backend-final-round": {
-    title: "Backend Engineer - Final Round",
-    time: "Tomorrow, 10:30 AM",
-    status: "Scheduled",
-  },
-  "product-round-2": {
-    title: "Product Engineer - Round 2",
-    time: "Monday, 2:00 PM",
-    status: "Pending Review",
-  },
-};
-
 export default async function SessionPage({ params }: SessionPageProps) {
   const { sessionId } = await params;
-  const session = sessionLookup[sessionId];
+  const session = await getSessionById(sessionId);
+
+  if (!session) {
+    notFound();
+  }
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#0f172a_0%,_#020617_45%,_#000_100%)] text-slate-100">
@@ -52,12 +40,12 @@ export default async function SessionPage({ params }: SessionPageProps) {
           <section className="pt-12">
             <div className="rounded-2xl border border-white/10 bg-white/5 p-6 md:p-8">
               <span className="rounded-full bg-cyan-300/20 px-3 py-1 text-xs text-cyan-200">
-                {session?.status ?? "Session"}
+                {session.status}
               </span>
               <h1 className="mt-4 text-3xl font-semibold text-white md:text-4xl">
-                {session?.title ?? "Interview Session"}
+                {session.title}
               </h1>
-              <p className="mt-3 text-slate-300">{session?.time ?? "Time not set"}</p>
+              <p className="mt-3 text-slate-300">{session.time}</p>
 
               <div className="mt-8 rounded-xl border border-white/10 bg-slate-900/60 p-5">
                 <p className="text-sm text-slate-300">
