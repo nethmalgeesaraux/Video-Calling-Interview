@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Show, SignInButton, UserButton } from "@clerk/nextjs";
 import { notFound } from "next/navigation";
-import { getSessionById } from "@/lib/session-repository";
+import { getSessionById, InterviewSession, InterviewParticipant } from "@/lib/session-repository";
 import { useState, useRef, useEffect, use } from "react";
 
 type SessionRoomPageProps = {
@@ -12,7 +12,7 @@ type SessionRoomPageProps = {
 
 export default function SessionRoomPage({ params }: SessionRoomPageProps) {
   const { sessionId } = use(params);
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<InterviewSession | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Media states
@@ -21,7 +21,12 @@ export default function SessionRoomPage({ params }: SessionRoomPageProps) {
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
 
+  // Chat states
+  const [chatMessages, setChatMessages] = useState<{ sender: string; message: string; timestamp: Date }[]>([]);
+  const [newMessage, setNewMessage] = useState('');
+
   const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -51,6 +56,7 @@ export default function SessionRoomPage({ params }: SessionRoomPageProps) {
           audio: true,
         });
         setStream(mediaStream);
+        streamRef.current = mediaStream;
         if (videoRef.current) {
           videoRef.current.srcObject = mediaStream;
         }
@@ -62,8 +68,8 @@ export default function SessionRoomPage({ params }: SessionRoomPageProps) {
     initializeCamera();
 
     return () => {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
       }
     };
   }, []);
@@ -97,6 +103,7 @@ export default function SessionRoomPage({ params }: SessionRoomPageProps) {
           audio: true,
         });
         setStream(mediaStream);
+        streamRef.current = mediaStream;
         if (videoRef.current) {
           videoRef.current.srcObject = mediaStream;
         }
@@ -107,6 +114,7 @@ export default function SessionRoomPage({ params }: SessionRoomPageProps) {
           video: true,
         });
         setStream(screenStream);
+        streamRef.current = screenStream;
         if (videoRef.current) {
           videoRef.current.srcObject = screenStream;
         }
@@ -125,9 +133,16 @@ export default function SessionRoomPage({ params }: SessionRoomPageProps) {
     window.location.href = `/session/${sessionId}`;
   };
 
+  const sendMessage = () => {
+    if (newMessage.trim()) {
+      setChatMessages(prev => [...prev, { sender: 'You', message: newMessage, timestamp: new Date() }]);
+      setNewMessage('');
+    }
+  };
+
   if (loading) {
     return (
-      <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#0f172a_0%,_#020617_45%,_#000_100%)] text-slate-100 flex items-center justify-center">
+      <main className="min-h-screen bg-[radial-gradient(circle_at_top,#0f172a_0%,#020617_45%,#000_100%)] text-slate-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-300 mx-auto"></div>
           <p className="mt-4 text-slate-300">Loading interview room...</p>
@@ -143,7 +158,7 @@ export default function SessionRoomPage({ params }: SessionRoomPageProps) {
   const room = session.room;
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#0f172a_0%,_#020617_45%,_#000_100%)] text-slate-100">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,#0f172a_0%,#020617_45%,#000_100%)] text-slate-100">
       <div className="mx-auto max-w-7xl px-6 pb-16 pt-6 md:px-10 md:pb-24">
         <header className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur">
           <nav className="flex items-center justify-between px-5 py-4 md:px-7">
@@ -184,7 +199,7 @@ export default function SessionRoomPage({ params }: SessionRoomPageProps) {
 
               <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
                 <div className="space-y-4">
-                  <div className="relative aspect-video overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+                  <div className="relative aspect-video overflow-hidden rounded-2xl border border-white/10 bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
                     <div className="flex h-full items-end justify-between rounded-xl border border-white/10 bg-[linear-gradient(145deg,#111827_0%,#0f172a_45%,#020617_100%)] p-5">
                       <div>
                         <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
@@ -277,7 +292,7 @@ export default function SessionRoomPage({ params }: SessionRoomPageProps) {
                       Participants
                     </h2>
                     <div className="mt-3 space-y-2">
-                      {room.participants.map((person: any) => (
+                      {room.participants.map((person: InterviewParticipant) => (
                         <div
                           key={person.name}
                           className="rounded-lg border border-white/10 bg-slate-900/50 px-3 py-2"
@@ -296,6 +311,36 @@ export default function SessionRoomPage({ params }: SessionRoomPageProps) {
                       Notes
                     </h2>
                     <p className="mt-3 text-sm leading-6 text-slate-300">{room.notes}</p>
+                  </div>
+
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-300">
+                      Chat
+                    </h2>
+                    <div className="mt-3 space-y-2 max-h-40 overflow-y-auto">
+                      {chatMessages.map((msg, index) => (
+                        <div key={index} className="rounded-lg border border-white/10 bg-slate-900/50 px-3 py-2">
+                          <p className="text-xs font-medium text-cyan-200">{msg.sender}</p>
+                          <p className="text-sm text-slate-200">{msg.message}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-3 flex gap-2">
+                      <input
+                        type="text"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                        placeholder="Type a message..."
+                        className="flex-1 rounded-lg border border-white/20 bg-slate-900/50 px-3 py-2 text-sm text-white placeholder-slate-400 focus:border-cyan-300 focus:outline-none"
+                      />
+                      <button
+                        onClick={sendMessage}
+                        className="rounded-lg border border-cyan-300/40 bg-cyan-300/15 px-3 py-2 text-sm font-medium text-cyan-100 transition hover:bg-cyan-300/25"
+                      >
+                        Send
+                      </button>
+                    </div>
                   </div>
                 </aside>
               </div>

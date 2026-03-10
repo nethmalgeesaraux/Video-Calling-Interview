@@ -27,7 +27,7 @@ const steps = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#0f172a_0%,_#020617_45%,_#000_100%)] text-slate-100">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,#0f172a_0%,#020617_45%,#000_100%)] text-slate-100">
       <div className="mx-auto max-w-6xl px-6 pb-16 pt-6 md:px-10 md:pb-24">
         <header className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur">
           <nav className="flex items-center justify-between px-5 py-4 md:px-7">
